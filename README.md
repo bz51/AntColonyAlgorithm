@@ -1,4 +1,4 @@
-![title](https://leanote.com/api/file/getImage?fileId=5a5b08d0ab644172c7000b53)
+![title](https://leanote.com/api/file/getImage?fileId=5a5b0ac2ab644174b3000c8f)
 > 蚂蚁几乎没有视力，但他们却能够在黑暗的世界中找到食物，而且能够找到一条从洞穴到食物的最短路径。它们是如何做到的呢？
 
 ## 蚂蚁寻找食物的过程
