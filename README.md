@@ -1,4 +1,4 @@
-![title](https://leanote.com/api/file/getImage?fileId=5a5b0ac2ab644174b3000c8f)
+![title](img/wechat.png)
 > 蚂蚁几乎没有视力，但他们却能够在黑暗的世界中找到食物，而且能够找到一条从洞穴到食物的最短路径。它们是如何做到的呢？
 
 ## 蚂蚁寻找食物的过程
@@ -30,7 +30,7 @@
 
 在这个问题中，我们将所有任务的完成时间作为衡量分配策略优良的指标。每一种分配策略都是这个问题的一个可行解。那么具有最小完成时间的分配策略就是这个问题的最优解。
 
-![title](https://leanote.com/api/file/getImage?fileId=5a5acf34ab644172c700057b)
+![title](img/WechatIMG36.jpeg)
 
 
 ## 参数定义
@@ -405,7 +405,7 @@ function updatePheromoneMatrix(pathMatrix_allAnt, pheromoneMatrix, timeArray_one
         
 ## 结果分析
 算法的运行结果如下图所示：
-![title](https://leanote.com/api/file/getImage?fileId=5a5b0569ab644174b3000bf9)
+![title](img/result.png)
 
 横坐标为迭代次数，纵坐标为任务处理时间。
 每个点表示一只蚂蚁的任务处理时间。上图的算法的迭代次数为100，蚂蚁数量为1000，所以每次迭代都会产生1000种任务分配方案，而每次迭代完成后都会挑选出一个当前最优方案，并提升该方案的信息素浓度，从而保证在下一次迭代中，选择该方案的概率较高。并且还使用一定概率的蚂蚁采用随机分配策略，以发现更优的方案。

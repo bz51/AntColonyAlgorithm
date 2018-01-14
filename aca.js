@@ -183,7 +183,6 @@ function draw(resultData) {
 
     // 初始化节点集合
     nodes = initRandomArray(_nodeNum, nodeSpeendRange);
-    debugger;
 
     // 执行蚁群算法
     aca();
