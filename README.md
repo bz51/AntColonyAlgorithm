@@ -419,6 +419,6 @@ https://github.com/bz51/AntColonyAlgorithm
 上面一共有两个问题：
 
 - aca.html
-- aca.js
+- ACA.js
 
 蚁群算法的实现均在aca.js中，你把代码down下来之后直接在浏览器打开aca.html即可查看。欢迎各位star。也欢迎关注我的公众号，我定期分享技术干货的地方～
