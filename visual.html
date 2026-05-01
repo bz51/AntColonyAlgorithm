@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蚁群算法路径规划可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-panel {
+            flex: 0 0 320px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .control-panel h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input[type="range"] {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .slider-value {
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+            color: #667eea;
+        }
+
+        .mode-btn:hover {
+            border-color: #667eea;
+        }
+
+        .status-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-label {
+            color: #666;
+        }
+
+        .status-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .canvas-container {
+            flex: 1;
+            min-width: 600px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        canvas {
+            display: block;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        .instructions {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .instructions h4 {
+            margin-bottom: 8px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>蚁群算法路径规划可视化演示</h1>
+        
+        <div class="main-content">
+            <div class="control-panel">
+                <h3>参数设置</h3>
+                
+                <div class="form-group">
+                    <label>选择绘图模式</label>
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="start">起点</button>
+                        <button class="mode-btn" data-mode="end">终点</button>
+                        <button class="mode-btn" data-mode="obstacle">障碍物</button>
+                        <button class="mode-btn" data-mode="erase">橡皮擦</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>蚂蚁数量: <span id="antNumValue">50</span></label>
+                    <input type="range" id="antNum" min="10" max="200" value="50">
+                </div>
+
+                <div class="form-group">
+                    <label>迭代次数: <span id="iteratorNumValue">100</span></label>
+                    <input type="range" id="iteratorNum" min="10" max="500" value="100">
+                </div>
+
+                <div class="form-group">
+                    <label>信息素衰减系数 (p): <span id="pValue">0.7</span></label>
+                    <input type="range" id="p" min="0.1" max="0.99" step="0.01" value="0.7">
+                </div>
+
+                <div class="form-group">
+                    <label>信息素增强系数 (q): <span id="qValue">500</span></label>
+                    <input type="range" id="q" min="100" max="2000" value="500">
+                </div>
+
+                <div class="form-group">
+                    <label>信息素重要度 (alpha): <span id="alphaValue">1</span></label>
+                    <input type="range" id="alpha" min="0.1" max="5" step="0.1" value="1">
+                </div>
+
+                <div class="form-group">
+                    <label>启发信息重要度 (beta): <span id="betaValue">5</span></label>
+                    <input type="range" id="beta" min="0.1" max="10" step="0.1" value="5">
+                </div>
+
+                <div class="form-group">
+                    <label>动画速度 (ms/帧): <span id="speedValue">50</span></label>
+                    <input type="range" id="speed" min="10" max="500" value="50">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="startBtn">开始算法</button>
+                    <button class="btn-warning" id="resetBtn">重置</button>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" id="pauseBtn" style="display: none;">暂停</button>
+                    <button class="btn-secondary" id="clearObstacleBtn">清除障碍物</button>
+                </div>
+
+                <div class="status-panel">
+                    <h3 style="font-size: 14px; margin-bottom: 10px;">算法状态</h3>
+                    <div class="status-item">
+                        <span class="status-label">当前迭代:</span>
+                        <span class="status-value" id="currentIter">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">最优路径长度:</span>
+                        <span class="status-value" id="bestLength">--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">状态:</span>
+                        <span class="status-value" id="status">等待配置...</span>
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    <h4>使用说明:</h4>
+                    <ul>
+                        <li>点击"起点"后在画布上点击设置起点</li>
+                        <li>点击"终点"后在画布上点击设置终点</li>
+                        <li>点击"障碍物"后拖动绘制障碍物</li>
+                        <li>设置完成后点击"开始算法"观看蚁群寻路过程</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4CAF50;"></div>
+                        <span>起点</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f44336;"></div>
+                        <span>终点</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #333;"></div>
+                        <span>障碍物</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #FF9800;"></div>
+                        <span>蚂蚁</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #2196F3;"></div>
+                        <span>最优路径</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(156, 39, 176, 0.3);"></div>
+                        <span>信息素浓度</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="ACAPath.js"></script>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const CELL_SIZE = 20;
+        const COLS = 50;
+        const ROWS = 30;
+        
+        canvas.width = COLS * CELL_SIZE;
+        canvas.height = ROWS * CELL_SIZE;
+        
+        ACAConfig.cols = COLS;
+        ACAConfig.rows = ROWS;
+        ACAConfig.cellSize = CELL_SIZE;
+        
+        let currentMode = 'start';
+        let isDrawing = false;
+        let isAlgorithmRunning = false;
+        let isPaused = false;
+        let animationTimer = null;
+        let currentIteration = 0;
+        let ants = [];
+        
+        const COLORS = {
+            background: '#fafafa',
+            grid: '#e0e0e0',
+            start: '#4CAF50',
+            end: '#f44336',
+            obstacle: '#333333',
+            ant: '#FF9800',
+            path: '#2196F3',
+            pheromone: '#9C27B0'
+        };
+        
+        function initUI() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (isAlgorithmRunning) return;
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMode = this.dataset.mode;
+                });
+            });
+            
+            const sliders = ['antNum', 'iteratorNum', 'p', 'q', 'alpha', 'beta', 'speed'];
+            sliders.forEach(id => {
+                const slider = document.getElementById(id);
+                const display = document.getElementById(id + 'Value');
+                slider.addEventListener('input', function() {
+                    display.textContent = this.value;
+                    updateConfig();
+                });
+            });
+            
+            document.getElementById('startBtn').addEventListener('click', startAlgorithm);
+            document.getElementById('pauseBtn').addEventListener('click', togglePause);
+            document.getElementById('resetBtn').addEventListener('click', resetAll);
+            document.getElementById('clearObstacleBtn').addEventListener('click', clearObstacles);
+            
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('mouseleave', handleMouseUp);
+        }
+        
+        function updateConfig() {
+            ACAConfig.antNum = parseInt(document.getElementById('antNum').value);
+            ACAConfig.iteratorNum = parseInt(document.getElementById('iteratorNum').value);
+            ACAConfig.p = parseFloat(document.getElementById('p').value);
+            ACAConfig.q = parseFloat(document.getElementById('q').value);
+            ACAConfig.alpha = parseFloat(document.getElementById('alpha').value);
+            ACAConfig.beta = parseFloat(document.getElementById('beta').value);
+        }
+        
+        function getGridPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / CELL_SIZE);
+            const y = Math.floor((e.clientY - rect.top) / CELL_SIZE);
+            return { x: Math.max(0, Math.min(x, COLS - 1)), y: Math.max(0, Math.min(y, ROWS - 1)) };
+        }
+        
+        function handleMouseDown(e) {
+            if (isAlgorithmRunning) return;
+            isDrawing = true;
+            handleAction(e);
+        }
+        
+        function handleMouseMove(e) {
+            if (!isDrawing || isAlgorithmRunning) return;
+            if (currentMode === 'obstacle' || currentMode === 'erase') {
+                handleAction(e);
+            }
+        }
+        
+        function handleMouseUp() {
+            isDrawing = false;
+        }
+        
+        function handleAction(e) {
+            const pos = getGridPos(e);
+            
+            switch (currentMode) {
+                case 'start':
+                    if (!isObstacle(pos.x, pos.y) && !(ACAConfig.end && ACAConfig.end.x === pos.x && ACAConfig.end.y === pos.y)) {
+                        ACAConfig.start = pos;
+                    }
+                    break;
+                case 'end':
+                    if (!isObstacle(pos.x, pos.y) && !(ACAConfig.start && ACAConfig.start.x === pos.x && ACAConfig.start.y === pos.y)) {
+                        ACAConfig.end = pos;
+                    }
+                    break;
+                case 'obstacle':
+                    if (!(ACAConfig.start && ACAConfig.start.x === pos.x && ACAConfig.start.y === pos.y) &&
+                        !(ACAConfig.end && ACAConfig.end.x === pos.x && ACAConfig.end.y === pos.y)) {
+                        addObstacle(pos.x, pos.y);
+                    }
+                    break;
+                case 'erase':
+                    removeObstacle(pos.x, pos.y);
+                    break;
+            }
+            draw();
+        }
+        
+        function addObstacle(x, y) {
+            if (!isObstacle(x, y)) {
+                ACAConfig.obstacles.push({ x, y });
+            }
+        }
+        
+        function removeObstacle(x, y) {
+            ACAConfig.obstacles = ACAConfig.obstacles.filter(o => !(o.x === x && o.y === y));
+        }
+        
+        function clearObstacles() {
+            if (isAlgorithmRunning) return;
+            ACAConfig.obstacles = [];
+            draw();
+        }
+        
+        function draw() {
+            ctx.fillStyle = COLORS.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = COLORS.grid;
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= COLS; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * CELL_SIZE, 0);
+                ctx.lineTo(i * CELL_SIZE, canvas.height);
+                ctx.stroke();
+            }
+            for (let j = 0; j <= ROWS; j++) {
+                ctx.beginPath();
+                ctx.moveTo(0, j * CELL_SIZE);
+                ctx.lineTo(canvas.width, j * CELL_SIZE);
+                ctx.stroke();
+            }
+            
+            if (pheromoneMatrix.length > 0) {
+                let maxPheromone = 0;
+                for (let y = 0; y < ROWS; y++) {
+                    for (let x = 0; x < COLS; x++) {
+                        if (pheromoneMatrix[y][x] > maxPheromone) {
+                            maxPheromone = pheromoneMatrix[y][x];
+                        }
+                    }
+                }
+                
+                for (let y = 0; y < ROWS; y++) {
+                    for (let x = 0; x < COLS; x++) {
+                        if (pheromoneMatrix[y][x] > 1 && !isObstacle(x, y)) {
+                            const intensity = Math.min(pheromoneMatrix[y][x] / maxPheromone, 1);
+                            ctx.fillStyle = `rgba(156, 39, 176, ${intensity * 0.5})`;
+                            ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                        }
+                    }
+                }
+            }
+            
+            ctx.fillStyle = COLORS.obstacle;
+            ACAConfig.obstacles.forEach(o => {
+                ctx.fillRect(o.x * CELL_SIZE + 1, o.y * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+            });
+            
+            if (ACAConfig.start) {
+                drawCircle(ACAConfig.start, COLORS.start, 'S');
+            }
+            if (ACAConfig.end) {
+                drawCircle(ACAConfig.end, COLORS.end, 'E');
+            }
+            
+            if (ants.length > 0) {
+                ctx.fillStyle = COLORS.ant;
+                ants.forEach(ant => {
+                    if (ant.length > 0) {
+                        const pos = ant[ant.length - 1];
+                        ctx.beginPath();
+                        ctx.arc(pos.x * CELL_SIZE + CELL_SIZE / 2, pos.y * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+            }
+            
+            if (bestPath && bestPath.length > 0) {
+                ctx.strokeStyle = COLORS.path;
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(bestPath[0].x * CELL_SIZE + CELL_SIZE / 2, bestPath[0].y * CELL_SIZE + CELL_SIZE / 2);
+                for (let i = 1; i < bestPath.length; i++) {
+                    ctx.lineTo(bestPath[i].x * CELL_SIZE + CELL_SIZE / 2, bestPath[i].y * CELL_SIZE + CELL_SIZE / 2);
+                }
+                ctx.stroke();
+            }
+        }
+        
+        function drawCircle(pos, color, text) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(pos.x * CELL_SIZE + CELL_SIZE / 2, pos.y * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, pos.x * CELL_SIZE + CELL_SIZE / 2, pos.y * CELL_SIZE + CELL_SIZE / 2);
+        }
+        
+        function startAlgorithm() {
+            if (!ACAConfig.start) {
+                alert('请先设置起点！');
+                return;
+            }
+            if (!ACAConfig.end) {
+                alert('请先设置终点！');
+                return;
+            }
+            
+            updateConfig();
+            
+            if (!initACA()) {
+                alert('初始化失败！');
+                return;
+            }
+            
+            isAlgorithmRunning = true;
+            isPaused = false;
+            currentIteration = 0;
+            ants = [];
+            
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'block';
+            document.getElementById('pauseBtn').textContent = '暂停';
+            document.getElementById('status').textContent = '运行中...';
+            
+            runIteration();
+        }
+        
+        function runIteration() {
+            if (!isAlgorithmRunning) return;
+            
+            if (isPaused) {
+                animationTimer = setTimeout(runIteration, 100);
+                return;
+            }
+            
+            if (currentIteration >= ACAConfig.iteratorNum) {
+                finishAlgorithm();
+                return;
+            }
+            
+            const result = acaSearchOneIteration();
+            currentIteration++;
+            
+            ants = result.validPaths.slice(0, Math.min(result.validPaths.length, 20));
+            
+            document.getElementById('currentIter').textContent = currentIteration;
+            if (result.bestPathLength < Infinity) {
+                document.getElementById('bestLength').textContent = result.bestPathLength.toFixed(2);
+            }
+            
+            draw();
+            
+            const speed = parseInt(document.getElementById('speed').value);
+            animationTimer = setTimeout(runIteration, speed);
+        }
+        
+        function togglePause() {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? '继续' : '暂停';
+            document.getElementById('status').textContent = isPaused ? '已暂停' : '运行中...';
+        }
+        
+        function finishAlgorithm() {
+            isAlgorithmRunning = false;
+            ants = [];
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('status').textContent = '已完成！';
+            draw();
+        }
+        
+        function resetAll() {
+            if (animationTimer) {
+                clearTimeout(animationTimer);
+            }
+            
+            isAlgorithmRunning = false;
+            isPaused = false;
+            currentIteration = 0;
+            ants = [];
+            
+            ACAConfig.start = null;
+            ACAConfig.end = null;
+            ACAConfig.obstacles = [];
+            
+            pheromoneMatrix = [];
+            heuristicMatrix = [];
+            bestPath = [];
+            bestPathLength = Infinity;
+            
+            resetACA();
+            
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('currentIter').textContent = '0';
+            document.getElementById('bestLength').textContent = '--';
+            document.getElementById('status').textContent = '等待配置...';
+            
+            draw();
+        }
+        
+        initUI();
+        draw();
+    </script>
+</body>
+</html>
